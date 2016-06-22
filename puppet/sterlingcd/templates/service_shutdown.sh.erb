@@ -1,0 +1,9 @@
+#! /bin/bash
+# Managed by Puppet
+SERVICE=$1
+REALUSER=$(who am i | cut -d" " -f1)
+LNAME=`finger | grep $REALUSER | head -1 | awk '{print $3}'`
+FNAME=`finger | grep $REALUSER | head -1 | awk '{print $2}'`
+
+echo "$SERVICE stopped by ${FNAME} ${LNAME} [${REALUSER}] at `date` on `uname -n`." >> /var/log/services.log
+echo "$SERVICE stopped by ${FNAME} ${LNAME} [${REALUSER}] at `date` on `uname -n`." | mailx -s "$SERVICE stopped" user@example.com

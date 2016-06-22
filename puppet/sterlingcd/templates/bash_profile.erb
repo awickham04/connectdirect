@@ -1,0 +1,13 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+export NDMAPICFG=/opt/ConnectDirect/ndm/cfg/cliapi/ndmapi.cfg
+export CDHOME=/opt/ConnectDirect
+export CDCFG=/opt/ConnectDirect/ndm/cfg/EXAMPLE.NODE
+export PATH=$PATH:$CDHOME/ndm/bin:$CDCFG:$CDHOME/etc:$HOME/bin

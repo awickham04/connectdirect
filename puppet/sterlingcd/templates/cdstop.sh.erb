@@ -1,0 +1,10 @@
+#!/bin/bash
+source /home/cdadmin/.bash_profile
+USERNAME=$(whoami | cut -d" " -f1)
+if [[ ${USERNAME} != "cdadmin" ]]; then
+   echo "You are not cdadmin and so do not have permissions to stop C:D."
+   return
+fi
+/opt/ConnectDirect/ndm/bin/direct << EOJ
+stop;
+EOJ
