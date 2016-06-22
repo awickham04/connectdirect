@@ -1,0 +1,90 @@
+#! /bin/bash
+# sterlingcd        Init script for starting IBM Sterling Connect:Direct.
+#
+#
+# description: IBM Sterling Connect:Direct FTP Server
+# processname: sterlingcd
+# chkconfig: 35 59 80
+
+export NDMAPICFG=/opt/ConnectDirect/ndm/cfg/cliapi/ndmapi.cfg
+export CDHOME=/opt/ConnectDirect
+export CDCFG=/opt/ConnectDirect/ndm/cfg/EXAMPLE.NODE
+export PATH=$PATH:$CDHOME/ndm/bin:$CDCFG:$CDHOME/etc
+export CDUSER="cdadmin"
+
+start(){
+        PID=`ps aux | grep cdpmgr | grep $CDHOME | grep -v grep | awk '{print $2}'`
+	THISITE=EXAMPLE.NODE
+
+        if [ -n "$PID" ];
+        then
+                echo "Sterling Connect:Direct is already running! [${PID}]"
+                exit 1
+        else
+        echo "Starting Sterling Connect:Direct.."
+        su - $CDUSER -c "$CDHOME/ndm/bin/cdpmgr -i $CDHOME/ndm/cfg/$THISITE/initparm.cfg"
+        fi
+}
+
+stop(){
+	PID=`ps aux | grep cdpmgr | grep $CDHOME | grep -v grep | awk '{print $2}'`
+	SERVICENAME=$0
+
+        echo "Stopping Sterling Connect:Direct..."
+        if [ -z "$PID" ];
+        then
+                echo "Sterling Connect:Direct already stopped!"
+        else
+        su - $CDUSER -c "source /opt/scripts/cdstop.sh"
+                COUNTER=0
+                while [ -e /proc/$PID ]
+                do
+                        echo "waiting for Sterling Connect:Direct to stop... [${PID}], waiting ${COUNTER} second(s)"
+                        let COUNTER=COUNTER+1
+
+                        if [ ${COUNTER} -gt 20 ]; then
+                                kill -9 ${PID};
+                                echo "Killed Sterling Connect:Direct [${PID}] forcibly."
+                        fi
+
+                        sleep 1
+                done
+	<% if @service_shutdown -%>
+		/opt/scripts/service_shutdown.sh $SERVICENAME
+	<% end -%>
+        fi
+}
+
+status(){
+	PID=`ps aux | grep cdpmgr | grep $CDHOME | grep -v grep | awk '{print $2}'`
+
+        if [ -n "$PID" ];
+        then
+                echo "Sterling Connect:Direct is running [${PID}]"
+                exit 0
+        else
+                echo "Sterling Connect:Direct is not running!"
+                exit 3
+        fi
+}
+
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        restart)
+                stop
+                start
+                ;;
+        status)
+                status
+                ;;
+        *)
+                echo "Usage: sterlingcd {start|stop|restart|status}"
+                exit 1
+esac
+
+exit 0
